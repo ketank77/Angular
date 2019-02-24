@@ -11,15 +11,23 @@ export class DishService {
   constructor() { }
   
   getDishes(): Promise<Dish[]> {
-  return Promise.resolve(DISHES);
+  // when we already have the data then we can use
+  // return Promise.resolve(DISHES); but the actual use
+  return new Promise (resolve => {
+    setTimeout(() => resolve(DISHES), 1500);
+  });
 }
 
 getDish(id: string): Promise<Dish> {
-  return Promise.resolve(DISHES.filter((dish) => (dish.id === id))[0]);
+  return new Promise (resolve => {
+    setTimeout(() => resolve(DISHES.filter((dish) => (dish.id === id))[0]),1500);
+  });
 }
 
 getFeaturedDish(): Promise<Dish> {
-  return Promise.resolve(DISHES.filter((dish) => dish.featured)[0]);
+  return new Promise (resolve => {
+    setTimeout(() => resolve(DISHES.filter((dish) => dish.featured)[0]),1500);
+  });
 }
 
 }

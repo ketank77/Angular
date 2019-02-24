@@ -10,14 +10,22 @@ export class LeaderService {
   constructor() { }
 
   getLeaders(): Promise<Leader[]> {
-    return Promise.resolve(LEADERS);
+  // when we already have the data then we can use
+  // return Promise.resolve(DISHES); but the actual use
+    return new Promise (resolve => {
+      setTimeout(() => resolve(LEADERS),1500);
+    });
   }
 
   getLeader(id: string): Promise<Leader> {
-    return Promise.resolve(LEADERS.filter((leader) => (leader.id === id))[0]);
+    return new Promise (resolve => {
+      setTimeout(() => resolve(LEADERS.filter((leader) => (leader.id === id))[0]),1500);
+    });
   }
 
   getFeaturedLeader(): Promise<Leader> {
-    return Promise.resolve(LEADERS.filter((leader) => leader.featured)[0]);
+    return new Promise (resolve => {
+      setTimeout(() => resolve(LEADERS.filter((leader) => leader.featured)[0]),1500);
+    });
   }
 }
