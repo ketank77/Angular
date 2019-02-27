@@ -19,14 +19,11 @@
       </mat-grid-tile>
     </mat-grid-list>
   </div>
-  <div [hidden]="dishes">
+  <div fxFlex [hidden]="dishes || errMess">
       <mat-spinner></mat-spinner><h4>Loading . . . Please Wait</h4>
-  </div>
-
-  <!-- we will be removing as we dont want to disply the contecnt below rather we
-    will be displaying the content when clicked on the same area with a differnet view-- apart from this we
-    also replca the above (click)="onSelect(dish) whcih was present in *ngFor and bring in router concepts with [routerLink]
-  <app-dishdetail [dish]="selectedDish"></app-dishdetail>
-  -->
-  
+  </div>  
+  <div fxFlex *ngIf="errMess">
+      <h2>Error</h2>
+      <h4>{{errMess}}</h4>
+    </div>
 </div>
