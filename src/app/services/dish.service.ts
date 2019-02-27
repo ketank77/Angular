@@ -1,8 +1,11 @@
 import { Injectable } from '@angular/core';
 import { Dish } from '../shared/dish';
-import { DISHES } from '../shared/dishes';
 import { Observable, of } from 'rxjs';
 import { delay } from 'rxjs/operators';
+import { map } from 'rxjs/operators';
+import { HttpClient } from '@angular/common/http';
+import { baseURL } from '../shared/baseURL';
+
 
 @Injectable({
   providedIn: 'root'
@@ -10,28 +13,22 @@ import { delay } from 'rxjs/operators';
 
 export class DishService {
 
-  constructor() { }
+  constructor(private http: HttpClient) { }
   
   getDishes(): Observable<Dish[]> {
-  // when we already have the data then we can use
-  // return Promise.resolve(DISHES); but the actual use
-
-  //we will also change the belwo as we will now be using observable
-  //return new Promise (resolve => {
-  //  setTimeout(() => resolve(DISHES), 1500);});
-      return of(DISHES).pipe(delay(2000));
+    return this.http.get<Dish[]>(baseURL + 'dishes');
   }
 
-getDish(id: string): Observable<Dish> {
-  return of (DISHES.filter((dish) => (dish.id === id))[0]).pipe(delay(2000));
-}
+  getDish(id: number): Observable<Dish> {
+    return this.http.get<Dish>(baseURL + 'dishes/' + id);
+  }
 
-getFeaturedDish(): Observable<Dish> {
-  return of (DISHES.filter((dish) => dish.featured)[0]).pipe(delay(2000));
-}
+  getFeaturedDish(): Observable<Dish> {
+    return this.http.get<Dish[]>(baseURL + 'dishes?featured=true').pipe(map(dishes => dishes[0]));
+  }
 
-getDishIds(): Observable<string[] | any> {
-  return of(DISHES.map(dish => dish.id ));
-}
+  getDishIds(): Observable<number[] | any> {
+    return this.getDishes().pipe(map(dishes => dishes.map(dish => dish.id)));
+  }
 
 }

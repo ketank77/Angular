@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, Inject, ViewChild } from '@angular/core';
 import { Dish } from "../shared/dish";
 import { DishService } from '../services/dish.service';
 import { AbstractControl, FormBuilder, FormGroup, Validators } from '@angular/forms';
@@ -22,11 +22,10 @@ export class DishdetailComponent implements OnInit {
     dish : Dish;
     commentForm: FormGroup;
     comment: Comment;
-    showcomment: Comment;
+    @ViewChild('cform') commentFormDirective;
 
     formErrors = {
       'author': '',
-      'rating': '',
       'comment': ''
     };
     validationMessages = {
@@ -35,10 +34,6 @@ export class DishdetailComponent implements OnInit {
           'Name is required.',
         'minlength':
           'Name must be at least 2 characters long.'
-      },
-      'rating': {
-        'nullValidator':
-          'Rating should not be null.'
       },
       'comment': {
         'required':
@@ -49,11 +44,12 @@ export class DishdetailComponent implements OnInit {
     constructor(private dishservice: DishService,
       private route: ActivatedRoute,
       private location: Location,
-      private fb: FormBuilder) { 
-        this.createForm();
+      private fb: FormBuilder,
+      @Inject('BaseURL') private BaseURL) { 
       }
 
       ngOnInit() {
+        this.createForm();
         this.dishservice.getDishIds().subscribe(dishIds => this.dishIds = dishIds);
         this.route.params.pipe(switchMap((params: Params) => this.dishservice.getDish(params['id'])))
         .subscribe(dish => { this.dish = dish; this.setPrevNext(dish.id); });
@@ -115,16 +111,9 @@ export class DishdetailComponent implements OnInit {
       const date = new Date();
       this.comment.date = date.toString();
       this.dish.comments.push(this.comment);
-      this.resetForm(this.commentForm);
-    }
-
-    resetForm (formGroup: FormGroup) {
-      let control: AbstractControl = null;
-      formGroup.reset({author: '', rating : 5, comment : ''});
-      formGroup.markAsUntouched();
-      Object.keys(formGroup.controls).forEach((name) => {
-        control = formGroup.controls[name];
-        control.setErrors(null);
+      this.commentForm.reset({
+        author: '', rating : 5, comment : ''
       });
+      this.commentFormDirective.resetForm();
     }
 }
