@@ -1,7 +1,8 @@
 import { Component, OnInit, ViewChild } from '@angular/core';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { Feedback, ContactType } from '../shared/feedback';
-import { flyInOut} from '../animations/app-animation'
+import { flyInOut, expand } from '../animations/app-animation';
+import { FeedbackService } from '../services/feedback.service';
 
 @Component({
   selector: 'app-contact',
@@ -12,13 +13,16 @@ import { flyInOut} from '../animations/app-animation'
     'style': 'display: block;'
     },
     animations: [
-      flyInOut()
+      flyInOut(),
+      expand()
     ]
 })
 export class ContactComponent implements OnInit {
 
   feedbackForm: FormGroup;
   feedback: Feedback;
+  showFeedback: boolean;
+  showSpinner: boolean;
   contactType = ContactType;
   @ViewChild('fform') feedbackFormDirective;
   formErrors = {
@@ -49,7 +53,7 @@ export class ContactComponent implements OnInit {
     },
   };
 
-  constructor(private fb: FormBuilder) { 
+  constructor(private fb: FormBuilder, private feedbackService: FeedbackService) { 
     this.createForm();
   }
 
@@ -66,16 +70,39 @@ export class ContactComponent implements OnInit {
       contacttype: 'None',
       message: ''
     });
-
+    
     this.feedbackForm.valueChanges
       .subscribe(data => this.onValueChanged(data));
-
+      this.showSpinner = false;
     this.onValueChanged(); // (re)set validation messages now
   }
 
   onSubmit() {
+    this.showSpinner = true;
+
+    const feedbackSubscription = this.feedbackService.submitFeedback(this.feedbackForm.value).subscribe(feedback => {
+      this.feedback = feedback;
+      this.showSpinner = false;
+      this.showFeedback = true;
+
+      setTimeout(() => {
+        this.showFeedback = false;
+        this.feedback = null;
+        feedbackSubscription.unsubscribe();
+      }, 5000);
+
+    }, error => {
+      this.showSpinner = false;
+      this.showFeedback = false;
+      this.feedback = null;
+      console.log(error);
+    });
+
+    /** insted of showing he feedback in the console we write to the server
     this.feedback = this.feedbackForm.value;
     console.log(this.feedback);
+     */
+
     this.feedbackForm.reset({
       firstname: '',
       lastname: '',
